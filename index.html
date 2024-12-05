@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>括号匹配验证器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        input[type="text"] {
+            width: 300px;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>括号匹配验证器</h1>
+        <p>请输入包含括号的字符串：( ) { } [ ]</p>
+        <input type="text" id="bracketInput" placeholder="例如: {[()]}">
+        <br>
+        <button onclick="checkBrackets()">验证</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // 添加回车键监听
+        document.getElementById('bracketInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkBrackets();
+            }
+        });
+
+        function checkBrackets() {
+            const input = document.getElementById('bracketInput').value;
+            // 添加输入验证
+            if (!input) {
+                const resultDiv = document.getElementById('result');
+                resultDiv.style.color = 'red';
+                resultDiv.textContent = '请输入括号';
+                return;
+            }
+
+            fetch('/check', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({input: input})
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('网络响应出错');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const resultDiv = document.getElementById('result');
+                if (data.valid) {
+                    resultDiv.style.color = 'green';
+                    resultDiv.textContent = '✓ 括号匹配有效';
+                } else {
+                    resultDiv.style.color = 'red';
+                    resultDiv.textContent = '✗ 括号匹配无效';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const resultDiv = document.getElementById('result');
+                resultDiv.style.color = 'red';
+                resultDiv.textContent = '发生错误，请确保输入的是括号字符';
+            });
+        }
+    </script>
+</body>
+</html> 
